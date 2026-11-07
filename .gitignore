@@ -1,0 +1,7 @@
+node_modules/
+.DS_Store
+.vercel/
+
+# Variáveis de ambiente com valores nunca entram no git; só o modelo vazio
+.env*
+!.env.example
