@@ -1,0 +1,14 @@
+flowchart TD
+    A[Mensagem da pessoa] --> B{Sinal de crise?}
+    B -- sim --> C[Mensagem de crise fixa]
+    B -- não --> D[POST /api/mari]
+    D --> E[Função no servidor]
+    E --> F[Gemini principal]
+    F -- falha --> G[Gemini de reserva]
+    F -- ok --> H[Valida o JSON]
+    G -- ok --> H
+    H --> I{risco = true?}
+    I -- sim --> J[Resposta + crise fixa]
+    I -- não --> K[Resposta + exercício]
+    E -- os dois falham --> L[Reserva por palavras-chave]
+    D -- sem rede ou 12 s --> L

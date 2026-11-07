@@ -30,23 +30,10 @@ Depois do hackathon, separei a Mari neste repositório, corrigi falsos negativos
 
 ## Arquitetura
 
-```mermaid
-%%{init: {"flowchart": {"htmlLabels": false}} }%%
-flowchart TD
-    A[Mensagem da pessoa] --> B{Sinal de crise?}
-    B -- sim --> C[Mensagem de crise fixa]
-    B -- não --> D[POST /api/mari]
-    D --> E[Função no servidor]
-    E --> F[Gemini principal]
-    F -- falha --> G[Gemini de reserva]
-    F -- ok --> H[Valida o JSON]
-    G -- ok --> H
-    H --> I{risco = true?}
-    I -- sim --> J[Resposta + crise fixa]
-    I -- não --> K[Resposta + exercício]
-    E -- os dois falham --> L[Reserva por palavras-chave]
-    D -- sem rede ou 12 s --> L
-```
+![Fluxo de uma mensagem da Mari](docs/fluxo-mari.png)
+
+O código do diagrama está em [docs/fluxo-mari.mmd](docs/fluxo-mari.mmd).
+
 ### Passo a passo
 
 1. **Detecção de crise no navegador** (`src/mari-regras.js`). O texto é passado para minúsculas e sem acento e testado contra uma lista de expressões regulares (`EXPRESSOES_RISCO`), como `\bmorrer\b`, `(nao|n|naum) aguento mais` e `me cortar`. Se uma delas aparece, a página mostra a `MENSAGEM_CRISE` fixa, com SAMU 192, CVV 188 e CAPS, e não chama a IA.
