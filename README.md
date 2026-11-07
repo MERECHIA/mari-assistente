@@ -32,21 +32,20 @@ Depois do hackathon, separei a Mari neste repositório, corrigi falsos negativos
 
 ```mermaid
 flowchart TD
-    A[Pessoa envia mensagem] --> B{Expressão de risco?<br/>regex no navegador}
-    B -- sim --> C[Mensagem de crise fixa<br/>botões 188, 192 e Ajuda<br/>a IA não é chamada]
-    B -- não --> D[POST /api/mari<br/>mensagem + até 16 mensagens anteriores<br/>+ catálogo + contexto da visita]
-    D --> E[Vercel Function api/mari.js<br/>valida o corpo e os limites]
-    E --> F[Gemini principal<br/>responseSchema, até 6 s]
-    F -- 429, 5xx, 404, timeout,<br/>vazio ou fora do formato --> G[Gemini de reserva<br/>até completar 10,5 s]
-    F -- ok --> H[Valida o JSON<br/>texto, sugestao, risco, humor]
+    A[Mensagem da pessoa] --> B{Sinal de crise?}
+    B -- sim --> C[Mensagem de crise fixa]
+    B -- não --> D[POST /api/mari]
+    D --> E[Função no servidor]
+    E --> F[Gemini principal]
+    F -- falha --> G[Gemini de reserva]
+    F -- ok --> H[Valida o JSON]
     G -- ok --> H
     H --> I{risco = true?}
-    I -- sim --> J[Texto da IA + mensagem de crise fixa]
-    I -- não --> K[Texto da IA + botão do exercício sugerido]
-    E -- erro, sem chave ou<br/>os dois modelos falharam --> L[Resposta de reserva<br/>por palavras-chave no navegador]
+    I -- sim --> J[Resposta + crise fixa]
+    I -- não --> K[Resposta + exercício]
+    E -- os dois falham --> L[Reserva por palavras-chave]
     D -- sem rede ou 12 s --> L
 ```
-
 ### Passo a passo
 
 1. **Detecção de crise no navegador** (`src/mari-regras.js`). O texto é passado para minúsculas e sem acento e testado contra uma lista de expressões regulares (`EXPRESSOES_RISCO`), como `\bmorrer\b`, `(nao|n|naum) aguento mais` e `me cortar`. Se uma delas aparece, a página mostra a `MENSAGEM_CRISE` fixa, com SAMU 192, CVV 188 e CAPS, e não chama a IA.
