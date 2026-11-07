@@ -31,6 +31,7 @@ Depois do hackathon, separei a Mari neste repositório, corrigi falsos negativos
 ## Arquitetura
 
 ```mermaid
+%%{init: {"flowchart": {"htmlLabels": false}} }%%
 flowchart TD
     A[Mensagem da pessoa] --> B{Sinal de crise?}
     B -- sim --> C[Mensagem de crise fixa]
