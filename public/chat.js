@@ -1,7 +1,9 @@
-/* Chat mínimo com a Mari, com o mesmo fluxo do app: crise detectada no navegador mostra a mensagem fixa sem chamar
-   a IA; senão a IA responde (POST /api/mari); com risco, a mensagem de crise fixa vem logo abaixo; se a IA falhar,
-   responde o fallback por palavras-chave. Tudo fica só na memória da página. */
-import { A, MENSAGEM_CRISE, MOODS, orienta, ehCrise, novoRitmo, registrarResposta } from './src/mari-regras.js';
+/* Chat mínimo com a Mari, com o mesmo fluxo do app: risco explícito detectado no navegador mostra a mensagem fixa
+   sem chamar a IA; senão a IA responde (POST /api/mari), com o aviso de atenção quando a mensagem tem uma expressão
+   ambígua (como "perdi tudo"); com risco, a mensagem de crise fixa vem logo abaixo; sem risco, o exercício sugerido e,
+   no ritmo das sugestões, os botões de apoio do humor; se a IA falhar, responde o fallback por palavras-chave, que
+   trata as expressões ambíguas como crise. Tudo fica só na memória da página. */
+import { A, APOIO_DO_HUMOR, MENSAGEM_CRISE, MOODS, orienta, ehCrise, trechoAtencao, novoRitmo, registrarResposta } from './src/mari-regras.js';
 import { sugestaoValida } from './src/mari-prompt.js';
 import { perguntarIA, MAX_HISTORICO } from './src/mari-ia.js';
 import { CATALOGO, APP } from './src/catalogo.js';
@@ -41,16 +43,20 @@ async function envia(txt){
     dig.remove(); bolha(MENSAGEM_CRISE, 'ela crise', 'crise detectada no navegador, sem chamar a IA'); acoes(MOODS.critico.acoes);
     registro = MENSAGEM_CRISE;
   } else {
-    const ia = await perguntarIA(txt, anteriores, { catalogo: CATALOGO, feitos: [], sugeridos });
+    const atencao = trechoAtencao(txt);
+    const ia = await perguntarIA(txt, anteriores, { catalogo: CATALOGO, feitos: [], sugeridos, atencao });
     dig.remove();
     if (ia){
-      bolha(ia.texto, 'ela', 'IA (Gemini)' + (ia.humor ? ', humor: ' + ia.humor : ''));
+      bolha(ia.texto, 'ela', 'IA (Gemini)' + (ia.humor ? ', humor: ' + ia.humor : '') + (atencao ? ', com aviso de atenção ("' + atencao + '")' : ''));
       registro = ia.texto;
+      const mood = ia.risco ? 'critico' : MOODS[ia.humor] ? ia.humor : 'neutro';
+      // Botões de apoio do humor (Ligar 188, Ajuda, Cuidar do dinheiro), no ritmo das sugestões
+      const apoio = registrarResposta(ritmo, mood) && !ia.risco ? APOIO_DO_HUMOR[mood] || [] : [];
       if (ia.risco){ bolha(MENSAGEM_CRISE, 'ela crise', 'risco marcado pela IA'); acoes(MOODS.critico.acoes); registro += '\n\n' + MENSAGEM_CRISE; }
-      else { const id = sugestaoValida(ia.sugestao, CATALOGO, ultimoChip); if (id) acoes([acaoDo(id)]); }
+      else { const id = sugestaoValida(ia.sugestao, CATALOGO, ultimoChip); acoes([...(id ? [acaoDo(id)] : []), ...apoio]); }
     } else {
       const o = orienta(txt);
-      bolha(o.m, 'ela', 'resposta de reserva por palavras-chave (a IA não respondeu)');
+      bolha(o.m, o.mood === 'critico' ? 'ela crise' : 'ela', 'resposta de reserva por palavras-chave (a IA não respondeu)');
       if (registrarResposta(ritmo, o.mood)) acoes(o.a);
       registro = o.m;
     }

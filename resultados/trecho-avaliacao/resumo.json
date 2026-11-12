@@ -1,0 +1,158 @@
+{
+  "execucao_id": "2026-11-12T08-12-27Z",
+  "data_hora": "2026-11-12T08:12:27.573Z",
+  "modelo_principal": "gemini-3.5-flash-lite",
+  "modelo_de_reserva": "gemini-3.1-flash-lite",
+  "rodadas_por_roteiro": 10,
+  "conversas": 80,
+  "conversas_aprovadas": 77,
+  "conversas_reprovadas": 3,
+  "conversas_nao_verificadas": 0,
+  "taxa_aprovacao_verificacoes_automaticas": 0.9625,
+  "conversas_que_chegaram_ao_modelo": 80,
+  "conversas_interceptadas_pela_crise_local": 0,
+  "respostas": 140,
+  "respostas_por_origem": {
+    "ia": 138,
+    "reserva": 2,
+    "crise_local": 0
+  },
+  "pedidos_a_funcao": 146,
+  "latencia_mediana_ms": 1682,
+  "latencia_p90_ms": 4971,
+  "uso_do_modelo_de_reserva": {
+    "respostas": 13,
+    "fracao_das_respostas_da_ia": 0.0942
+  },
+  "deteccao_crise": {
+    "frases": 60,
+    "precisao": 1,
+    "recall": 0.6667,
+    "matriz_de_confusao": {
+      "verdadeiro_positivo": 20,
+      "falso_positivo": 0,
+      "verdadeiro_negativo": 30,
+      "falso_negativo": 10
+    }
+  },
+  "deteccao_crise_app": {
+    "execucao_id": "2026-11-12T08-31-06Z",
+    "versao": "duas camadas, trecho e avaliação",
+    "frases_arquivo": "frases-avaliacao.json",
+    "modelo_principal": "gemini-3.5-flash-lite",
+    "frases": 60,
+    "frases_enviadas_a_ia": 40,
+    "frases_com_atencao": 15,
+    "frases_sem_resposta_da_ia": 0,
+    "precisao": 1,
+    "recall": 0.9333,
+    "matriz_de_confusao": {
+      "verdadeiro_positivo": 28,
+      "falso_positivo": 0,
+      "verdadeiro_negativo": 30,
+      "falso_negativo": 2,
+      "nao_verificada": 0
+    },
+    "sem_ia": {
+      "precisao": 0.7429,
+      "recall": 0.8667,
+      "matriz_de_confusao": {
+        "verdadeiro_positivo": 26,
+        "falso_positivo": 9,
+        "verdadeiro_negativo": 21,
+        "falso_negativo": 4,
+        "nao_verificada": 0
+      }
+    },
+    "pedidos_ao_google": {
+      "gemini-3.5-flash-lite erro": 3,
+      "gemini-3.1-flash-lite 200": 3,
+      "gemini-3.5-flash-lite 200": 37,
+      "gemini-3.5-flash-lite 503": 1,
+      "gemini-3.1-flash-lite erro": 1
+    }
+  },
+  "deteccao_crise_app_conjunto_2": {
+    "execucao_id": "2026-11-12T08-36-06Z",
+    "versao": "duas camadas, trecho e avaliação",
+    "frases_arquivo": "frases-avaliacao-2.json",
+    "modelo_principal": "gemini-3.5-flash-lite",
+    "frases": 60,
+    "frases_enviadas_a_ia": 57,
+    "frases_com_atencao": 11,
+    "frases_sem_resposta_da_ia": 5,
+    "precisao": 0.871,
+    "recall": 0.9,
+    "matriz_de_confusao": {
+      "verdadeiro_positivo": 27,
+      "falso_positivo": 4,
+      "verdadeiro_negativo": 26,
+      "falso_negativo": 3,
+      "nao_verificada": 0
+    },
+    "sem_ia": {
+      "precisao": 0.2857,
+      "recall": 0.1333,
+      "matriz_de_confusao": {
+        "verdadeiro_positivo": 4,
+        "falso_positivo": 10,
+        "verdadeiro_negativo": 20,
+        "falso_negativo": 26,
+        "nao_verificada": 0
+      }
+    },
+    "pedidos_ao_google": {
+      "gemini-3.5-flash-lite 200": 44,
+      "gemini-3.5-flash-lite erro": 13,
+      "gemini-3.1-flash-lite 503": 3,
+      "gemini-3.1-flash-lite 200": 8,
+      "gemini-3.5-flash-lite 503": 4,
+      "gemini-3.1-flash-lite erro": 6
+    }
+  },
+  "deteccao_crise_app_conjunto_3": {
+    "execucao_id": "2026-11-12T08-45-56Z",
+    "versao": "duas camadas, trecho e avaliação",
+    "frases_arquivo": "frases-avaliacao-3.json",
+    "modelo_principal": "gemini-3.5-flash-lite",
+    "frases": 80,
+    "frases_enviadas_a_ia": 71,
+    "frases_com_atencao": 11,
+    "frases_sem_resposta_da_ia": 4,
+    "precisao": 0.9429,
+    "recall": 0.825,
+    "matriz_de_confusao": {
+      "verdadeiro_positivo": 33,
+      "falso_positivo": 2,
+      "verdadeiro_negativo": 38,
+      "falso_negativo": 7,
+      "nao_verificada": 0
+    },
+    "sem_ia": {
+      "precisao": 0.7,
+      "recall": 0.35,
+      "matriz_de_confusao": {
+        "verdadeiro_positivo": 14,
+        "falso_positivo": 6,
+        "verdadeiro_negativo": 34,
+        "falso_negativo": 26,
+        "nao_verificada": 0
+      }
+    },
+    "pedidos_ao_google": {
+      "gemini-3.5-flash-lite 503": 7,
+      "gemini-3.1-flash-lite 200": 6,
+      "gemini-3.5-flash-lite 200": 61,
+      "gemini-3.5-flash-lite erro": 5,
+      "gemini-3.1-flash-lite erro": 6
+    }
+  },
+  "pedidos_ao_google": {
+    "gemini-3.5-flash-lite 200": 125,
+    "gemini-3.5-flash-lite erro": 9,
+    "gemini-3.1-flash-lite 200": 13,
+    "gemini-3.1-flash-lite erro": 8,
+    "gemini-3.5-flash-lite 503": 12
+  },
+  "aviso_modelo_de_reserva": "Parte das respostas veio do modelo de reserva (gemini-3.1-flash-lite), e parte das frases ficou sem resposta dos dois modelos (503 ou tempo esgotado) e foi decidida pela reserva por palavras-chave: a execução mistura modelos. Contagens em pedidos_ao_google de cada etapa."
+}

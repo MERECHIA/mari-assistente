@@ -41,6 +41,7 @@ O QUE VOCÊ NUNCA FAZ
 
 QUANDO HÁ RISCO
 Se a pessoa falar em se machucar, em morrer, em desaparecer, em não ver saída ou em estar em perigo agora, responda com acolhimento curto e use exatamente o texto e os contatos de "${TEXTO_RISCO}". Marque "risco" como verdadeiro. Não sugira exercício como resposta principal nesse caso.
+Leia o sentido, não só as palavras: exageros do dia a dia, como "morrer de rir", "esse calor me mata" ou "não aguento mais esse trânsito", não são risco. Perder dinheiro, sem falar em morrer, sumir, se machucar ou não ver saída, também não é risco: acolha sem julgar.
 
 EXEMPLOS DE JEITO (não copie as frases)
 Pessoa: "Estou em paz"
@@ -61,20 +62,32 @@ Pessoa: "não aguento mais, quero sumir"
 Mari: {"texto":"Sinto muito que esteja tão difícil. ${TEXTO_RISCO}","sugestao":null,"risco":true}
 
 FORMATO
-Responda somente em JSON, com "texto", "sugestao" (um id do catálogo ou null) e "risco" (true ou false).`;
+Responda somente em JSON. Primeiro "avaliacao_risco": em uma frase curta, se há sinal de perigo para a própria pessoa e por quê (a pessoa não vê esse campo). Depois "risco" (true ou false), coerente com a avaliação, "texto" e "sugestao" (um id do catálogo ou null).`;
+}
+
+/* Aviso de atenção: a mensagem tem uma expressão de EXPRESSOES_ATENCAO (src/mari-regras.js), que
+   pode ser risco ou exagero. O aviso cita o trecho que acionou
+   a atenção, quando o navegador o envia. A IA decide pelo sentido e, na dúvida, marca risco */
+function avisoAtencao(trecho){
+  const qual = typeof trecho === 'string' && trecho ? 'o trecho "'+trecho+'", que' : 'uma expressão que';
+  return 'Atenção: a última mensagem da pessoa tem '+qual+' pode indicar risco ou ser só força de expressão. '+
+    'Veja se a pessoa fala da própria vida ou de outra coisa (uma pessoa, um objeto, uma situação do dia). '+
+    'Marque "risco" como verdadeiro se houver sinal de perigo para a própria pessoa: vontade de morrer, de sumir de vez ou de se machucar, ou de não ver saída. '+
+    'Não marque quando for claramente exagero do dia a dia ou quando falar de outra coisa. Perder dinheiro, sem esses sinais, não é risco. Na dúvida, marque risco.';
 }
 
 /* Bloco "Contexto do app": estado desta visita, montado no servidor a partir dos ids que o app enviou.
    A linha da última sugestão existe porque, nos roteiros de teste, o modelo repetia no texto o exercício que
    acabara de sugerir */
-function blocoContexto(catalogo, feitos = [], sugeridos = []){
+function blocoContexto(catalogo, feitos = [], sugeridos = [], atencao = false){
   const nome = (id) => (catalogo.find((x) => x.id === id) || {}).nome || id;
   const lista = (ids) => ids.length ? ids.map((id) => nome(id)+' ('+id+')').join(', ') : 'nenhum';
   const ultima = sugeridos.at(-1);
   return 'Contexto do app (estado desta visita, não é fala da pessoa):\n'+
     '- Exercícios que a pessoa já fez nesta visita: '+lista(feitos)+'.\n'+
     '- Exercícios que você já sugeriu nesta conversa, do mais antigo ao mais recente: '+lista(sugeridos)+'.'+
-    (ultima ? '\n- Última sugestão: '+nome(ultima)+'. Não sugira esse exercício de novo agora, nem pelo nome no texto, a menos que a pessoa peça.' : '');
+    (ultima ? '\n- Última sugestão: '+nome(ultima)+'. Não sugira esse exercício de novo agora, nem pelo nome no texto, a menos que a pessoa peça.' : '')+
+    (atencao ? '\n- '+avisoAtencao(atencao) : '');
 }
 
 /* Chip da sugestão: só um id do catálogo e diferente do último chip mostrado; senão, nenhum */
@@ -82,4 +95,4 @@ function sugestaoValida(sugestao, catalogo, ultimo){
   return typeof sugestao === 'string' && sugestao !== ultimo && catalogo.some((x) => x.id === sugestao) ? sugestao : null;
 }
 
-export { TEXTO_RISCO, duracaoCopo, montarInstrucao, blocoContexto, sugestaoValida };
+export { TEXTO_RISCO, avisoAtencao, duracaoCopo, montarInstrucao, blocoContexto, sugestaoValida };

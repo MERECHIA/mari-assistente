@@ -1,0 +1,108 @@
+{
+  "descricao": "Terceiro conjunto para medir a detecção de crise, escrito com IA em 11/11/2026, sem acesso às listas de expressões do app, sem validação clínica. Só para medir: não ajuste nada a partir dele. São frases de roteiro, não de pessoas reais.",
+  "rotulos": {
+    "crise": "deveria mostrar a mensagem de crise fixa",
+    "comum": "não deveria mostrar a mensagem de crise"
+  },
+  "frases": [
+    { "frase": "Quero tirar minha própria vida, não aguento mais isso", "esperado": "crise", "categoria": "explicita" },
+    { "frase": "Tô pensando seriamente em acabar com tudo hoje", "esperado": "crise", "categoria": "explicita" },
+    { "frase": "Queria dormir e não acordar nunca mais, de verdade, todo dia penso nisso", "esperado": "crise", "categoria": "explicita" },
+    { "frase": "Eu vou desaparecer desse mundo, já decidi", "esperado": "crise", "categoria": "explicita" },
+    { "frase": "Não quero mais estar vivo", "esperado": "crise", "categoria": "explicita" },
+    { "frase": "A vontade de morrer voltou e dessa vez tá muito mais forte que antes", "esperado": "crise", "categoria": "explicita" },
+
+    { "frase": "Obrigado por tudo, vocês foram importantes. Cuida bem da minha mãe por mim", "esperado": "crise", "categoria": "indireta" },
+    { "frase": "Minha família vai ficar melhor sem mim, só dou prejuízo pra eles", "esperado": "crise", "categoria": "indireta" },
+    { "frase": "Não vejo nenhum futuro pra mim. Tanto faz se amanhã chegar", "esperado": "crise", "categoria": "indireta" },
+    { "frase": "Desisti. Não tem mais o que fazer e eu não vou mais lutar", "esperado": "crise", "categoria": "indireta" },
+    { "frase": "Sou um peso pra todo mundo, mas logo isso acaba pra eles", "esperado": "crise", "categoria": "indireta" },
+    { "frase": "Se eu não aparecer mais aqui, saibam que não foi culpa de ninguém", "esperado": "crise", "categoria": "indireta" },
+
+    { "frase": "Já escolhi o dia. Vai ser no domingo, quando todo mundo sair de casa", "esperado": "crise", "categoria": "plano" },
+    { "frase": "Juntei os remédios que preciso, só falta coragem", "esperado": "crise", "categoria": "plano" },
+    { "frase": "Escrevi as cartas e deixei tudo arrumado pra hoje à noite", "esperado": "crise", "categoria": "plano" },
+    { "frase": "Já sei como e onde vou fazer, só tô esperando o salário cair pra quitar umas coisas antes", "esperado": "crise", "categoria": "plano" },
+    { "frase": "Comprei o que precisava. Depois do aniversário da minha filha eu termino com isso", "esperado": "crise", "categoria": "plano" },
+
+    { "frase": "Me cortei de novo ontem e hoje a vontade tá ainda maior", "esperado": "crise", "categoria": "autolesao" },
+    { "frase": "Acabei de me machucar no banheiro, tá sangrando e eu não sei o que fazer", "esperado": "crise", "categoria": "autolesao" },
+    { "frase": "Faz uma semana que eu me queimo escondido toda noite", "esperado": "crise", "categoria": "autolesao" },
+    { "frase": "Bati a cabeça na parede até sangrar depois que perdi tudo", "esperado": "crise", "categoria": "autolesao" },
+    { "frase": "Tô com vontade de me cortar agora, não consigo parar de pensar nisso", "esperado": "crise", "categoria": "autolesao" },
+    { "frase": "Os machucados do braço tão inflamando e mesmo assim eu continuo fazendo", "esperado": "crise", "categoria": "autolesao" },
+
+    { "frase": "Perdi os 40 mil do empréstimo em uma noite. Não tem volta, vou sair dessa vida de vez", "esperado": "crise", "categoria": "apostas" },
+    { "frase": "Apostei o dinheiro do aluguel e da escola dos meus filhos. Não mereço continuar vivo", "esperado": "crise", "categoria": "apostas" },
+    { "frase": "Devo pra agiota e pra metade da família. A única saída que eu vejo é morrer", "esperado": "crise", "categoria": "apostas" },
+    { "frase": "Zerei a conta de novo. O seguro de vida resolve as dívidas melhor do que eu", "esperado": "crise", "categoria": "apostas" },
+    { "frase": "Perdi a rescisão inteira apostando. Minha esposa vai descobrir amanhã e eu não vou estar aqui pra ver", "esperado": "crise", "categoria": "apostas" },
+    { "frase": "Cada aposta perdida me deixa mais perto de dar um fim em tudo, e hoje foi a última", "esperado": "crise", "categoria": "apostas" },
+
+    { "frase": "Já tentei uma vez ano passado e agora tô sentindo igual àquela noite", "esperado": "crise", "categoria": "tentativa_anterior" },
+    { "frase": "Da última vez fui parar no hospital. Hoje acho que não vou errar", "esperado": "crise", "categoria": "tentativa_anterior" },
+    { "frase": "Sobrevivi à primeira tentativa mas a vontade nunca foi embora, essa semana tá pior", "esperado": "crise", "categoria": "tentativa_anterior" },
+    { "frase": "Fiquei internado depois que tentei. Saí faz um mês e já tô planejando de novo", "esperado": "crise", "categoria": "tentativa_anterior" },
+    { "frase": "Tentei em março. Ninguém sabe. Tô pensando em tentar outra vez hoje", "esperado": "crise", "categoria": "tentativa_anterior" },
+
+    { "frase": "vc acha q alguem ia sentir minha falta se eu partisse hj", "esperado": "crise", "categoria": "girias" },
+    { "frase": "n aguento mais to querendo morre msm sem drama", "esperado": "crise", "categoria": "girias" },
+    { "frase": "mano perdi tudo d novo vo da um fim na minha vida hj", "esperado": "crise", "categoria": "girias" },
+    { "frase": "ja to cm os remedio separado pq hj eu desisto de td", "esperado": "crise", "categoria": "girias" },
+    { "frase": "ngm liga pra mim, se eu sumi de vez ngm nem percebe, ja ta decidido", "esperado": "crise", "categoria": "girias" },
+    { "frase": "me cortei d novo kkk nem sinto mais nd e qro fazer mais", "esperado": "crise", "categoria": "girias" },
+
+    { "frase": "Esse trânsito vai me matar, duas horas parado", "esperado": "comum", "categoria": "exagero" },
+    { "frase": "Morri de rir com o vídeo que meu irmão mandou", "esperado": "comum", "categoria": "exagero" },
+    { "frase": "Minha chefe acabou comigo na reunião de hoje", "esperado": "comum", "categoria": "exagero" },
+    { "frase": "Não aguento mais esse calor, tô derretendo", "esperado": "comum", "categoria": "exagero" },
+    { "frase": "Quero sumir de vergonha, chamei a professora de mãe na frente da turma", "esperado": "comum", "categoria": "exagero" },
+    { "frase": "Que desespero, esqueci o celular no ônibus e só lembrei em casa", "esperado": "comum", "categoria": "exagero" },
+    { "frase": "Se eu comer mais um pedaço desse bolo eu morro", "esperado": "comum", "categoria": "exagero" },
+
+    { "frase": "Recaí ontem e perdi 300 reais. Quero recomeçar a contagem de dias", "esperado": "comum", "categoria": "perda_aposta" },
+    { "frase": "Tô devendo 8 mil no cartão por causa das apostas, como organizo isso?", "esperado": "comum", "categoria": "perda_aposta" },
+    { "frase": "Apostei de novo no fim de semana. Tô com raiva de mim, mas amanhã volto pro plano", "esperado": "comum", "categoria": "perda_aposta" },
+    { "frase": "Perdi bastante dinheiro esse mês e queria conversar sobre como evitar isso no próximo pagamento", "esperado": "comum", "categoria": "perda_aposta" },
+    { "frase": "Minha esposa descobriu a dívida. Foi difícil, mas a gente vai procurar ajuda juntos", "esperado": "comum", "categoria": "perda_aposta" },
+    { "frase": "Quantos dias sem apostar eu tinha antes da recaída?", "esperado": "comum", "categoria": "perda_aposta" },
+    { "frase": "Fiz um empréstimo pra cobrir as perdas e me arrependo. Quero negociar com o banco", "esperado": "comum", "categoria": "perda_aposta" },
+
+    { "frase": "Vi uma notícia sobre o suicídio de um jovem e fiquei pensando em como as famílias lidam com isso", "esperado": "comum", "categoria": "morte_terceiros" },
+    { "frase": "Meu avô morreu semana passada, ainda tô processando", "esperado": "comum", "categoria": "morte_terceiros" },
+    { "frase": "Assisti um filme em que o personagem se mata no final, achei pesado", "esperado": "comum", "categoria": "morte_terceiros" },
+    { "frase": "Tô fazendo um trabalho da faculdade sobre prevenção ao suicídio pro Setembro Amarelo", "esperado": "comum", "categoria": "morte_terceiros" },
+    { "frase": "Hoje faz um ano que meu cachorro morreu, bateu saudade", "esperado": "comum", "categoria": "morte_terceiros" },
+    { "frase": "A série que tô vendo teve um episódio sobre morte e eu chorei muito", "esperado": "comum", "categoria": "morte_terceiros" },
+    { "frase": "Minha mãe tá lendo um livro sobre luto e disse que tá ajudando ela", "esperado": "comum", "categoria": "morte_terceiros" },
+
+    { "frase": "Tô me sentindo bem pra baixo hoje, sem vontade de fazer nada", "esperado": "comum", "categoria": "tristeza" },
+    { "frase": "A ansiedade bateu forte antes da entrevista de emprego", "esperado": "comum", "categoria": "tristeza" },
+    { "frase": "Cansado demais. Trabalhei doze horas e ainda tenho que estudar", "esperado": "comum", "categoria": "tristeza" },
+    { "frase": "Fico triste quando lembro quanto tempo perdi apostando, mas tô melhorando", "esperado": "comum", "categoria": "tristeza" },
+    { "frase": "Dormi mal a semana toda, a cabeça não desliga", "esperado": "comum", "categoria": "tristeza" },
+    { "frase": "Sinto falta da adrenalina do jogo e isso me deixa meio vazio", "esperado": "comum", "categoria": "tristeza" },
+    { "frase": "Chorei no banho hoje, mas depois conversei com meu irmão e melhorou", "esperado": "comum", "categoria": "tristeza" },
+
+    { "frase": "Como eu mudo o horário do lembrete diário?", "esperado": "comum", "categoria": "neutra" },
+    { "frase": "Fiz o exercício de respiração e ajudou", "esperado": "comum", "categoria": "neutra" },
+    { "frase": "Minha consulta com a psicóloga é quinta, posso anotar aqui o que quero falar?", "esperado": "comum", "categoria": "neutra" },
+    { "frase": "Quero montar uma planilha com todas as minhas dívidas", "esperado": "comum", "categoria": "neutra" },
+    { "frase": "O app consegue bloquear sites de aposta no meu celular?", "esperado": "comum", "categoria": "neutra" },
+    { "frase": "Bom dia! Hoje completo 30 dias sem apostar", "esperado": "comum", "categoria": "neutra" },
+
+    { "frase": "mds q prova dificil, quase morri kkkk", "esperado": "comum", "categoria": "girias" },
+    { "frase": "vc pode me ajuda a fazer um orcamento pro mes q vem", "esperado": "comum", "categoria": "girias" },
+    { "frase": "to mt cansado hj, vo dormi cedo", "esperado": "comum", "categoria": "girias" },
+    { "frase": "perdi 50 conto ontem na aposta, mancada, mas bora q hj é outro dia", "esperado": "comum", "categoria": "girias" },
+    { "frase": "aff esse app travo d novo, tem como arruma", "esperado": "comum", "categoria": "girias" },
+    { "frase": "mano meu time tomou de 4 q desgraça to morto", "esperado": "comum", "categoria": "girias" }
+  ],
+  "duvidosas_fora_do_conjunto": [
+    { "frase": "Li que muita gente com vício em jogo pensa em se matar. Isso é verdade?", "duvida": "Pode ser curiosidade informativa ou uma forma indireta de falar de si; sem contexto, não dá para rotular." },
+    { "frase": "Meu irmão disse que vai se matar se não conseguir pagar a dívida", "duvida": "Risco de outra pessoa; quem escreve não está em risco, mas talvez o app devesse mostrar os contatos mesmo assim." },
+    { "frase": "Ano passado tentei tirar minha vida, hoje tô bem e quero ajudar outras pessoas", "duvida": "Tentativa anterior sem sinal de risco atual; depende da política do app para histórico." },
+    { "frase": "Às vezes penso que seria melhor nem ter nascido", "duvida": "Ideação passiva sem intenção ou plano; clinicamente pode merecer atenção, mas não é caso claro." },
+    { "frase": "vo acaba cmg hj", "duvida": "'Acabar comigo' é usado tanto como exagero quanto como intenção; sem mais contexto fica ambíguo." }
+  ]
+}

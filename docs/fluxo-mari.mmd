@@ -1,7 +1,10 @@
 flowchart TD
-    A[Mensagem da pessoa] --> B{Sinal de crise?}
+    A[Mensagem da pessoa] --> B{Risco explícito?}
     B -- sim --> C[Mensagem de crise fixa]
-    B -- não --> D[POST /api/mari]
+    B -- não --> B2{Expressão ambígua?}
+    B2 -- sim --> D2[POST /api/mari com aviso de atenção]
+    B2 -- não --> D[POST /api/mari]
+    D2 --> E
     D --> E[Função no servidor]
     E --> F[Gemini principal]
     F -- falha --> G[Gemini de reserva]
@@ -9,6 +12,7 @@ flowchart TD
     G -- ok --> H
     H --> I{risco = true?}
     I -- sim --> J[Resposta + crise fixa]
-    I -- não --> K[Resposta + exercício]
+    I -- não --> K[Resposta + exercício + apoio do humor]
     E -- os dois falham --> L[Reserva por palavras-chave]
     D -- sem rede ou 12 s --> L
+    D2 -- sem rede ou 12 s --> C

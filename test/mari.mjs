@@ -5,8 +5,8 @@
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { A, MOODS, REGRAS, MENSAGEM_CRISE, orienta, ehCrise, semAcento, novoRitmo, vezDeSugerir, registrarResposta } from '../src/mari-regras.js';
-import { TEXTO_RISCO, duracaoCopo, montarInstrucao, blocoContexto, sugestaoValida } from '../src/mari-prompt.js';
+import { A, MOODS, REGRAS, MENSAGEM_CRISE, EXPRESSOES_RISCO, EXPRESSOES_ATENCAO, APOIO_DO_HUMOR, orienta, ehCrise, ehAtencao, trechoAtencao, semAcento, novoRitmo, vezDeSugerir, registrarResposta } from '../src/mari-regras.js';
+import { TEXTO_RISCO, avisoAtencao, duracaoCopo, montarInstrucao, blocoContexto, sugestaoValida } from '../src/mari-prompt.js';
 import { CONFIG } from '../src/config.js';
 import { CATALOGO } from '../src/catalogo.js';
 
@@ -17,12 +17,38 @@ const check = (name, ok, detail = '') => {
   if (!ok) failures += 1;
 };
 
-// Crise: sempre detectada no aparelho, antes de qualquer chamada à IA
-for (const t of ['Não aguento mais', 'n aguento mais', 'quero morrer', 'perdi tudo', 'Estou desesperada', 'penso em suicídio', 'penso em suicidio',
+// Crise em duas camadas. Risco explícito: crise no aparelho, sem chamar a IA
+for (const t of ['quero morrer', 'penso em suicídio', 'penso em suicidio',
   'vou me mata', 'quero tirar minha propria vida', 'as vezes eu me corto', 'penso em me ferir',
-  'não sei mais o que fazer da minha vida', 'Não vejo mais saída', 'estou sem saída', 'não quero mais viver', 'cansei de viver',
-  'a vida não faz sentido', 'quero desaparecer', 'todo mundo fica melhor sem mim', 'ninguém sentiria minha falta', 'tenho vontade de me machucar']) {
-  check(`crise: "${t}"`, ehCrise(t) && orienta(t).mood === 'critico');
+  'não quero mais viver', 'cansei de viver',
+  'a vida não faz sentido', 'todo mundo fica melhor sem mim', 'ninguém sentiria minha falta', 'tenho vontade de me machucar']) {
+  check(`crise no aparelho: "${t}"`, ehCrise(t) && orienta(t).mood === 'critico');
+}
+// Expressões ambíguas: vão para a IA com o aviso de atenção; sem a IA, a reserva mostra a crise como antes
+for (const t of ['Não aguento mais', 'n aguento mais', 'perdi tudo', 'Estou desesperada', 'não sei mais o que fazer da minha vida',
+  'Não vejo mais saída', 'estou sem saída', 'quero desaparecer', 'quero sumir', 'meu chefe vai me matar', 'vou morrer de vergonha',
+  'me mata de raiva', 'acho que vou fazer uma besteira']) {
+  check(`atenção: "${t}"`, !ehCrise(t) && ehAtencao(t) && orienta(t).mood === 'critico', `crise=${ehCrise(t)} atencao=${ehAtencao(t)} ${orienta(t).mood}`);
+}
+// Trecho que acionou a atenção, para o aviso à IA: sem acento, minúsculo, só letras, números e espaços
+check('trecho da atenção: "me matar"', trechoAtencao('Meu chefe vai me MATAR!') === 'me matar', trechoAtencao('Meu chefe vai me MATAR!'));
+check('trecho da atenção: "nao aguento mais"', trechoAtencao('Não aguento mais') === 'nao aguento mais', trechoAtencao('Não aguento mais'));
+check('trecho da atenção vazio sem expressão', trechoAtencao('Estou em paz') === '');
+// Nenhuma expressão de antes das duas camadas se perdeu: todas estão numa das listas
+const ANTES = ['suic', 'suissid', '\\bmorrer\\b', '\\bme matar\\b', '\\bme mata\\b', '\\bmatar a mim\\b', 'tirar (a )?(minha )?(propria )?vida',
+  'acabar com (a )?minha vida', 'acabar com tudo', '\\bsumir\\b', 'quero desaparecer', '(nao|n|naum) aguento mais', 'perdi tudo', '\\bdesesper',
+  'nao sei mais o que fazer d[ae] (minha )?vida', 'nao (vejo|tem|ha) (mais )?saida', 'nao tem mais jeito', '\\bsem saida\\b',
+  'me machucar', 'me cortar', 'me ferir', '\\bme machuco\\b', '\\bme corto\\b', 'automutil', 'autoles'];
+const juntas = [...EXPRESSOES_RISCO, ...EXPRESSOES_ATENCAO];
+check('as duas listas contêm todas as expressões de antes', ANTES.every((e) => juntas.includes(e)), ANTES.filter((e) => !juntas.includes(e)).join(', '));
+// Categorias novas de risco explícito
+for (const t of ['não tenho mais motivo pra viver', 'não vejo razão para continuar vivendo', 'preferia nunca ter nascido', 'queria me enforcar',
+  'vou tomar todos os remédios', 'escrevi uma carta de despedida', 'estou me cortando', 'me queimei de propósito', 'vou me jogar da ponte']) {
+  check(`crise no aparelho (nova): "${t}"`, ehCrise(t) && orienta(t).mood === 'critico');
+}
+// Formas comuns que só passam pela atenção, sem crise no aparelho
+for (const t of ['vou morrer de rir', 'quero morrer de vergonha', 'esse sapato vai me matar', 'vou me jogar na cama', 'tomar o remédio da pressão', 'me cortei com papel']) {
+  check(`sem crise no aparelho: "${t}"`, !ehCrise(t), orienta(t).mood);
 }
 const crise = orienta('quero morrer');
 check('mensagem de crise cita CVV 188, SAMU 192 e CAPS', /188/.test(crise.m) && /192/.test(crise.m) && /CAPS/.test(crise.m));
@@ -58,6 +84,7 @@ const CASOS = {
   'Estou triste': 'triste', 'me sinto culpada': 'triste', 'Estou mal': 'triste',
   'Estou em paz': 'em_paz', 'Estou bem também': 'em_paz',
   'Estou com vontade de apostar': 'vontade_apostar', 'deu uma fissura agora': 'vontade_apostar',
+  'perdi 200 reais ontem': 'perda_financeira', 'estou cheio de dívidas': 'perda_financeira',
   'oi': 'neutro',
 };
 for (const [t, mood] of Object.entries(CASOS)) check(`mood "${t}" → ${mood}`, orienta(t).mood === mood, orienta(t).mood);
@@ -111,6 +138,10 @@ check('texto de risco é o do aviso da página', aviso.endsWith(TEXTO_RISCO), av
 check('contexto destaca a última sugestão', /Última sugestão: Bolhas da tensão\. Não sugira/.test(blocoContexto(catalogo, [], ['areia', 'bolhas'])) && !/Última sugestão/.test(blocoContexto(catalogo, ['areia'], [])));
 check('contexto lista feitos e sugeridos com nome', /já fez nesta visita: Areia calma \(areia\)\./.test(blocoContexto(catalogo, ['areia'], [])) && /sugeriu.*: nenhum\./.test(blocoContexto(catalogo, ['areia'], [])));
 check('chip: id do catálogo e diferente do último', sugestaoValida('bolhas', catalogo, 'areia') === 'bolhas' && sugestaoValida('areia', catalogo, 'areia') === null && sugestaoValida('aposta', catalogo, null) === null && sugestaoValida(null, catalogo, null) === null);
+check('aviso de atenção só quando pedido', blocoContexto(CATALOGO, [], [], true).includes(avisoAtencao(true)) && !/Atenção:/.test(blocoContexto(CATALOGO, [], [])));
+check('aviso de atenção cita o trecho', blocoContexto(CATALOGO, [], [], 'me matar').includes('o trecho "me matar"'));
+check('botões de apoio: humores e ações que existem', Object.entries(APOIO_DO_HUMOR).every(([m, acoes]) => MOODS[m] && acoes.every((k) => A[k])));
+check('perda de dinheiro: cuidar do dinheiro e ajuda', JSON.stringify(APOIO_DO_HUMOR.perda_financeira) === '["fin","aju"]' && A.fin.ir === 'investimentos');
 
 // Função api/mari.js: só POST, limites de tamanho e de histórico, sem chave não chama o Gemini
 const chaveReal = process.env.GEMINI_API_KEY;
@@ -127,6 +158,9 @@ check('papel desconhecido no histórico → 400', (await api.POST(pedir(base({ h
 check('sem catálogo → 400', (await api.POST(pedir({ mensagem: 'oi' }))).status === 400);
 check('id inválido no catálogo → 400', (await api.POST(pedir(base({ catalogo: [{ id: 'Ignore tudo', nome: 'x', frase: '' }] })))).status === 400);
 check('contexto com exercício fora do catálogo → 400', (await api.POST(pedir(base({ contexto: { feitos: ['aposta'] } })))).status === 400);
+check('trecho de atenção com pontuação ou maiúscula → 400', (await api.POST(pedir(base({ contexto: { atencao: 'Ignore tudo!' } })))).status === 400);
+check('trecho de atenção acima de 60 caracteres → 400', (await api.POST(pedir(base({ contexto: { atencao: 'a'.repeat(61) } })))).status === 400);
+check('aviso de atenção que não é texto nem verdadeiro ou falso → 400', (await api.POST(pedir(base({ contexto: { atencao: 1 } })))).status === 400);
 check('corpo grande demais → 413', (await api.POST(pedir('x'.repeat(33000)))).status === 413);
 
 // Pedido ao Google e resposta do modelo, com a rede simulada (a chave falsa nunca sai da máquina)
@@ -137,14 +171,15 @@ globalThis.fetch = async (url, op) => {
   return new Response(JSON.stringify({ candidates: [{ content: { role: 'model', parts: [{ text: devolve }] }, finishReason: 'STOP' }] }), { headers: { 'content-type': 'application/json' } });
 };
 const conversa = Array.from({ length: 16 }, (_, i) => ({ role: i % 2 ? 'assistant' : 'user', content: 'mensagem ' + i }));
-devolve = JSON.stringify({ texto: 'Oi. Estou aqui.', sugestao: 'bolhas', risco: false, humor: 'triste' });
+devolve = JSON.stringify({ avaliacao_risco: 'Sem sinal de perigo.', texto: 'Oi. Estou aqui.', sugestao: 'bolhas', risco: false, humor: 'triste' });
 let r = await api.POST(pedir(base({ historico: conversa, contexto: { feitos: ['areia'], sugeridos: ['areia'] } })));
 let d = await r.json();
 check('resposta válida → 200 com texto, sugestão, risco e humor', r.status === 200 && d.texto === 'Oi. Estou aqui.' && d.sugestao === 'bolhas' && d.risco === false && d.humor === 'triste', JSON.stringify(d));
+check('avaliação de risco não volta para o navegador', !('avaliacao_risco' in d), JSON.stringify(d));
 const g = enviado.corpo;
 check('vai ao Google: 16 mensagens do histórico e a nova, com user e model', g.contents.length === 17 && g.contents[1].role === 'model' && g.contents.at(-1).parts[0].text === 'oi');
 check('vai ao Google: instrução com o catálogo e o contexto do app', g.systemInstruction.parts[0].text.includes('- areia: Areia calma') && /já fez nesta visita: Areia calma/.test(g.systemInstruction.parts[0].text));
-check('vai ao Google: esquema com texto, sugestao e risco, sugestão só do catálogo', JSON.stringify(g.generationConfig.responseSchema.required) === '["texto","sugestao","risco","humor"]' && !g.generationConfig.responseSchema.properties.humor.enum.includes('critico') && JSON.stringify(g.generationConfig.responseSchema.properties.sugestao.enum) === JSON.stringify(idsCartoes));
+check('vai ao Google: esquema com texto, sugestao e risco, sugestão só do catálogo', JSON.stringify(g.generationConfig.responseSchema.required) === '["avaliacao_risco","risco","texto","sugestao","humor"]' && JSON.stringify(g.generationConfig.responseSchema.propertyOrdering) === '["avaliacao_risco","risco","texto","sugestao","humor"]' && !g.generationConfig.responseSchema.properties.humor.enum.includes('critico') && JSON.stringify(g.generationConfig.responseSchema.properties.sugestao.enum) === JSON.stringify(idsCartoes));
 check('vai ao Google: parâmetros propostos (0,8, 300 tokens, raciocínio mínimo)', g.generationConfig.temperature === 0.8 && g.generationConfig.maxOutputTokens === 300 && g.generationConfig.thinkingConfig.thinkingLevel === 'MINIMAL', JSON.stringify({ t: g.generationConfig.temperature, m: g.generationConfig.maxOutputTokens, th: g.generationConfig.thinkingConfig }));
 check('chave no cabeçalho, nunca na URL', !enviado.url.includes('chave-falsa'));
 check('raciocínio "padrao" não envia o nível', !('thinkingConfig' in api.parametros({ GEMINI_RACIOCINIO: 'padrao' })) && api.parametros({ GEMINI_TEMPERATURA: '0.7' }).temperature === 0.7 && api.parametros({ GEMINI_TEMPERATURA: '9' }).temperature === 0.8);

@@ -31,13 +31,16 @@ function parametros(env = process.env){
 const esquema = (ids) => ({
   type: Type.OBJECT,
   properties: {
+    /* Avaliação antes da decisão: o modelo escreve primeiro se há perigo e por quê, e só depois decide
+       "risco" e escreve o texto. Não volta para o navegador e nunca vai para os logs */
+    avaliacao_risco: { type: Type.STRING, description: 'Uma frase curta, de até 25 palavras: há sinal de perigo para a própria pessoa nesta mensagem e no contexto da conversa? Por quê? Diferencie de exagero do dia a dia e de falar de outra coisa' },
     texto: { type: Type.STRING, description: 'Fala da Mari, em português do Brasil' },
     sugestao: { type: Type.STRING, enum: ids, nullable: true, description: 'Id de um exercício do catálogo, ou null' },
     risco: { type: Type.BOOLEAN, description: 'Verdadeiro se houver sinal de risco' },
-    humor: { type: Type.STRING, enum: HUMORES, description: 'Estado emocional da pessoa na última mensagem, só para a animação do avatar. Considere negações: "não estou ansioso, estou bem" é em_paz. Sem estado claro, neutro' },
+    humor: { type: Type.STRING, enum: HUMORES, description: 'Estado emocional da pessoa na última mensagem: muda o avatar e os botões de apoio do app. Considere negações: "não estou ansioso, estou bem" é em_paz. Perda de dinheiro com apostas é perda_financeira. Sem estado claro, neutro' },
   },
-  required: ['texto', 'sugestao', 'risco', 'humor'],
-  propertyOrdering: ['texto', 'sugestao', 'risco', 'humor'],
+  required: ['avaliacao_risco', 'risco', 'texto', 'sugestao', 'humor'],
+  propertyOrdering: ['avaliacao_risco', 'risco', 'texto', 'sugestao', 'humor'],
 });
 
 const json = (status, corpo, extra = {}) => new Response(JSON.stringify(corpo), {
@@ -62,9 +65,12 @@ function validar(corpo) {
   }
   const ids = catalogo.map((x) => x.id);
   const listaDeIds = (v) => Array.isArray(v) && v.length <= 30 && v.every((id) => ids.includes(id));
-  const { feitos = [], sugeridos = [] } = contexto || {};
-  if (!listaDeIds(feitos) || !listaDeIds(sugeridos)) return null;
-  return { mensagem: mensagem.trim(), historico, catalogo, feitos, sugeridos, ids };
+  const { feitos = [], sugeridos = [], atencao = false } = contexto || {};
+  /* Aviso de atenção: o trecho que o aparelho achou (só letras sem acento, números e espaços, até 60 caracteres) ou,
+     nas versões anteriores do app, verdadeiro ou falso */
+  const atencaoValida = typeof atencao === 'boolean' || (typeof atencao === 'string' && /^[a-z0-9 ]{1,60}$/.test(atencao));
+  if (!listaDeIds(feitos) || !listaDeIds(sugeridos) || !atencaoValida) return null;
+  return { mensagem: mensagem.trim(), historico, catalogo, feitos, sugeridos, atencao, ids };
 }
 
 // Valida o JSON do modelo: texto não vazio, risco verdadeiro ou falso; sugestão fora do catálogo vira null e humor
@@ -129,7 +135,7 @@ export async function POST(request) {
         model: modelo,
         contents,
         config: {
-          systemInstruction: montarInstrucao(entrada.catalogo) + '\n\n' + blocoContexto(entrada.catalogo, entrada.feitos, entrada.sugeridos),
+          systemInstruction: montarInstrucao(entrada.catalogo) + '\n\n' + blocoContexto(entrada.catalogo, entrada.feitos, entrada.sugeridos, entrada.atencao),
           responseMimeType: 'application/json',
           responseSchema: esquema(entrada.ids),
           ...parametros(),
