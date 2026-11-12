@@ -4,15 +4,15 @@ flowchart TD
     B -- não --> B2{Expressão ambígua?}
     B2 -- sim --> D2[POST /api/mari com aviso de atenção]
     B2 -- não --> D[POST /api/mari]
-    D2 --> E
-    D --> E[Função no servidor]
+    D2 -- sem rede ou 12 s --> C
+    D2 --> E[Função no servidor]
+    D --> E
+    D -- sem rede ou 12 s --> L[Reserva por palavras-chave]
     E --> F[Gemini principal]
-    F -- falha --> G[Gemini de reserva]
     F -- ok --> H[Valida o JSON]
+    F -- falha --> G[Gemini de reserva]
     G -- ok --> H
+    G -- falha também --> L
     H --> I{risco = true?}
     I -- sim --> J[Resposta + crise fixa]
     I -- não --> K[Resposta + exercício + apoio do humor]
-    E -- os dois falham --> L[Reserva por palavras-chave]
-    D -- sem rede ou 12 s --> L
-    D2 -- sem rede ou 12 s --> C
