@@ -122,10 +122,11 @@ const com = (n) => n ? ', '+n : '';
 
 /* Ritmo das sugestões: para não repetir exercício em toda resposta, a Mari sugere na primeira resposta e depois só a
    cada três (sugere, pula, pula, sugere). Também sugere quando o humor muda, e a crise sempre mostra os telefones.
-   Nas respostas sem sugestão, a IA só acolhe e conversa (api/mari.js) e os botões de exercício não aparecem */
+   O ritmo controla só os botões: os da reserva e os de apoio do humor que acompanham a resposta da IA. O exercício
+   que a IA sugere aparece fora do ritmo */
 const SUGERE_A_CADA = 3;
 const novoRitmo = () => ({desde:Infinity, mood:null});
-// Antes de responder: é a vez de sugerir? (vai para a IA como "sugerir")
+// É a vez de mostrar os botões? Usado só por registrarResposta; não vai para a IA
 const vezDeSugerir = (r) => r.desde >= SUGERE_A_CADA - 1;
 // Depois da resposta: mostra os botões? Atualiza o ritmo
 function registrarResposta(r, mood){

@@ -2,17 +2,18 @@ flowchart TD
     A[Mensagem da pessoa] --> B{Risco explícito?}
     B -- sim --> C[Mensagem de crise fixa]
     B -- não --> B2{Expressão ambígua?}
-    B2 -- sim --> D2[POST /api/mari com aviso de atenção]
-    B2 -- não --> D[POST /api/mari]
-    D2 -- sem rede ou 12 s --> C
+    B2 -- sim --> D2[POST com o trecho no aviso]
+    B2 -- não --> D[POST sem aviso]
     D2 --> E[Função no servidor]
     D --> E
-    D -- sem rede ou 12 s --> L[Reserva por palavras-chave]
     E --> F[Gemini principal]
-    F -- ok --> H[Valida o JSON]
+    F -- ok --> H[Valida o JSON e descarta a avaliação]
     F -- falha --> G[Gemini de reserva]
     G -- ok --> H
-    G -- falha também --> L
+    G -- falha também --> L{Reserva: expressão ambígua?}
+    E -- sem rede ou 12 s --> L
+    L -- sim --> C
+    L -- não --> M[Resposta fixa por palavras-chave]
     H --> I{risco = true?}
     I -- sim --> J[Resposta + crise fixa]
     I -- não --> K[Resposta + exercício + apoio do humor]
