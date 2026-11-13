@@ -2,9 +2,10 @@
 // Simula o app: camada de risco no aparelho, histórico de 16 mensagens, catálogo fixo (src/catalogo.js) e contexto
 // da visita (exercícios feitos e sugestões da Mari), com o chip validado como em src/mari.js. As falas são de roteiro,
 // nunca de pessoas. Imprime cada conversa, as verificações automáticas e a latência de cada pedido.
-// A chave vem só do ambiente do terminal, nunca de arquivo:
-//   GEMINI_API_KEY=... node test/mari-dialogos.mjs                 (chama api/mari.js direto, sem servidor)
-//   MARI_URL=https://endereco/api/mari node test/mari-dialogos.mjs  (contra uma função já publicada)
+// A chave vem só de GEMINI_API_KEY_TESTES, no ambiente do terminal, nunca de arquivo, e é uma chave só para testes:
+//   GEMINI_API_KEY_TESTES=... node test/mari-dialogos.mjs   (chama api/mari.js direto, sem servidor)
+// A chave de produção nunca é usada: sem GEMINI_API_KEY_TESTES, o script para antes de qualquer pedido. MARI_URL (contra
+// uma função publicada) está desativado, porque a função usaria a chave dela, e não a de testes.
 // Opcionais: REPETICOES (padrão 3), ROTEIROS=T1,T8, ESPERA_MS entre pedidos (padrão 4000, para caber no limite por
 // minuto do plano gratuito) e os parâmetros de api/mari.js (GEMINI_MODEL, GEMINI_TEMPERATURA,
 // GEMINI_MAX_SAIDA, GEMINI_RACIOCINIO)
@@ -13,12 +14,17 @@ import { sugestaoValida } from '../src/mari-prompt.js';
 import { MAX_HISTORICO } from '../src/mari-ia.js';
 import { CATALOGO } from '../src/catalogo.js';
 
-const URL_MARI = process.env.MARI_URL;
-if (!URL_MARI && !process.env.GEMINI_API_KEY) {
-  console.log('Sem GEMINI_API_KEY nem MARI_URL no ambiente: nada foi chamado.');
-  console.log('Defina a chave no ambiente e rode:  GEMINI_API_KEY=... node test/mari-dialogos.mjs');
+if (!process.env.GEMINI_API_KEY_TESTES) {
+  console.log('Defina GEMINI_API_KEY_TESTES com uma chave só para testes. A chave de produção não é usada nos testes.');
   process.exit(1);
 }
+if (process.env.MARI_URL) {
+  console.log('MARI_URL está desativado: a função publicada usaria a chave dela, e não a de testes. Nada foi chamado.');
+  process.exit(1);
+}
+// api/mari.js lê GEMINI_API_KEY: a chave de testes vai para ela só dentro deste processo, por cima de qualquer outra
+process.env['GEMINI_API_KEY'] = process.env.GEMINI_API_KEY_TESTES;
+const URL_MARI = null;
 const api = URL_MARI ? null : await import('../api/mari.js');
 const catalogo = CATALOGO;
 const REPETICOES = Number(process.env.REPETICOES) || 3;
@@ -148,7 +154,8 @@ async function rodar(nome, roteiro, rodada) {
   if (erros.length) falhas.push(`${nome} rodada ${rodada}: ${erros.join('; ')}`);
 }
 
-console.log(`Modelo: ${process.env.GEMINI_MODEL || (URL_MARI ? 'o da função publicada' : 'gemini-flash-latest')} | ` +
+// Os nomes já validados por api/mari.js, nunca o valor cru da variável
+console.log(`Modelo: ${api ? api.modelos().join(', reserva ') : 'o da função publicada'} | ` +
   (api ? `parâmetros: ${JSON.stringify(api.parametros())}` : URL_MARI) + ` | catálogo: ${catalogo.map((x) => x.id).join(', ')}`);
 for (const nome of escolhidos) {
   for (let i = 1; i <= REPETICOES; i++) await rodar(nome, ROTEIROS[nome], i);

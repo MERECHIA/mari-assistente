@@ -3,7 +3,7 @@
    ambígua (como "perdi tudo"); com risco, a mensagem de crise fixa vem logo abaixo; sem risco, o exercício sugerido e,
    no ritmo das sugestões, os botões de apoio do humor; se a IA falhar, responde o fallback por palavras-chave, que
    trata as expressões ambíguas como crise. Tudo fica só na memória da página. */
-import { A, APOIO_DO_HUMOR, MENSAGEM_CRISE, MOODS, orienta, ehCrise, trechoAtencao, novoRitmo, registrarResposta } from './src/mari-regras.js';
+import { A, APOIO_DO_HUMOR, MENSAGEM_CRISE, MOODS, orienta, rodapeDaReserva, ehCrise, trechoAtencao, novoRitmo, registrarResposta } from './src/mari-regras.js';
 import { sugestaoValida } from './src/mari-prompt.js';
 import { perguntarIA, MAX_HISTORICO } from './src/mari-ia.js';
 import { CATALOGO, APP } from './src/catalogo.js';
@@ -56,7 +56,10 @@ async function envia(txt){
       else { const id = sugestaoValida(ia.sugestao, CATALOGO, ultimoChip); acoes([...(id ? [acaoDo(id)] : []), ...apoio]); }
     } else {
       const o = orienta(txt);
-      bolha(o.m, o.mood === 'critico' ? 'ela crise' : 'ela', 'resposta de reserva por palavras-chave (a IA não respondeu)');
+      const b = bolha(o.m, o.mood === 'critico' ? 'ela crise' : 'ela', 'resposta de reserva por palavras-chave (a IA não respondeu)');
+      // Rodapé de contatos, menos na mensagem de crise; fica fora do histórico enviado à IA
+      const rodape = rodapeDaReserva(o);
+      if (rodape){ const r = document.createElement('small'); r.className = 'rodape'; r.textContent = rodape; b.insertBefore(r, b.querySelector('.origem')); }
       if (registrarResposta(ritmo, o.mood)) acoes(o.a);
       registro = o.m;
     }

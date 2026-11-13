@@ -1,0 +1,44 @@
+{
+  "execucao_id": "2026-11-13T12-17-45Z",
+  "data_hora": "2026-11-13T12:17:45.006Z",
+  "modelo_principal": "gemini-3.5-flash-lite",
+  "modelo_de_reserva": "gemini-3.1-flash-lite",
+  "rodadas_por_roteiro": 10,
+  "conversas": 30,
+  "conversas_aprovadas": 30,
+  "conversas_reprovadas": 0,
+  "conversas_nao_verificadas": 0,
+  "taxa_aprovacao_verificacoes_automaticas": 1,
+  "respostas_por_origem_e_modelo": {
+    "modelo_principal": 29,
+    "modelo_de_reserva": 1,
+    "reserva_por_palavras_chave": 0,
+    "crise_no_aparelho": 0
+  },
+  "conversas_que_chegaram_ao_modelo": 30,
+  "conversas_interceptadas_pela_crise_local": 0,
+  "respostas": 30,
+  "respostas_por_origem": {
+    "ia": 30,
+    "reserva": 0,
+    "crise_local": 0
+  },
+  "pedidos_a_funcao": 30,
+  "latencia_mediana_ms": 1307,
+  "latencia_p90_ms": 1704,
+  "uso_do_modelo_de_reserva": {
+    "respostas": 1,
+    "fracao_das_respostas_da_ia": 0.0333
+  },
+  "deteccao_crise": {
+    "frases": 60,
+    "precisao": 1,
+    "recall": 0.6667,
+    "matriz_de_confusao": {
+      "verdadeiro_positivo": 20,
+      "falso_positivo": 0,
+      "verdadeiro_negativo": 30,
+      "falso_negativo": 10
+    }
+  }
+}

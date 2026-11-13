@@ -3,10 +3,12 @@
 //    mesmas verificações automáticas de lá. Os roteiros e as verificações estão copiados aqui porque o
 //    mari-dialogos.mjs roda ao ser importado; ao mudar um, mude o outro.
 // 2. Roda ehCrise nas frases de test/frases-avaliacao.json, sem ajustar nada a partir do resultado.
-// Grava em resultados/: respostas.csv, roteiros.csv, deteccao_crise.csv e resumo.json (a cada execução, por cima).
-// As falas são de roteiro, nunca de pessoas. A chave vem só do ambiente do terminal, nunca de arquivo:
-//   GEMINI_API_KEY=... node test/metricas.mjs
-// Opcionais: REPETICOES (padrão 10), ROTEIROS=T1,T8, ESPERA_MS entre pedidos (padrão 4000), SO_CRISE=1 (só a
+// Grava em resultados/ (ou na pasta de PASTA): respostas.csv, roteiros.csv, deteccao_crise.csv e resumo.json (a cada
+// execução, por cima).
+// As falas são de roteiro, nunca de pessoas. A chave vem só de GEMINI_API_KEY_TESTES, no ambiente do terminal, nunca de
+// arquivo, e é uma chave só para testes (a de produção nunca é usada):
+//   GEMINI_API_KEY_TESTES=... node test/metricas.mjs
+// Opcionais: PASTA=resultados/nova-medicao, REPETICOES (padrão 10), ROTEIROS=T1,T8, ESPERA_MS entre pedidos (padrão 4000), SO_CRISE=1 (só a
 // detecção de crise, sem chamar a IA). O modelo principal é gemini-3.5-flash-lite, se GEMINI_MODEL estiver vazio.
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
@@ -22,12 +24,17 @@ import { MAX_HISTORICO } from '../src/mari-ia.js';
 import { CATALOGO } from '../src/catalogo.js';
 
 const raiz = fileURLToPath(new URL('..', import.meta.url));
-const pastaSaida = join(raiz, 'resultados');
+const pastaSaida = join(raiz, process.env.PASTA || 'resultados');
 const SO_CRISE = process.env.SO_CRISE === '1';
-if (!SO_CRISE && !process.env.GEMINI_API_KEY) {
-  console.log('Sem GEMINI_API_KEY no ambiente: nada foi chamado. Use SO_CRISE=1 para medir só a detecção de crise.');
+if (!SO_CRISE && !process.env.GEMINI_API_KEY_TESTES) {
+  console.log('Defina GEMINI_API_KEY_TESTES com uma chave só para testes. A chave de produção não é usada nos testes.');
+  console.log('Para medir só a detecção de crise, sem chamar a IA, use SO_CRISE=1.');
   process.exit(1);
 }
+// api/mari.js lê GEMINI_API_KEY: a chave de testes vai para ela só dentro deste processo, por cima de qualquer outra.
+// Com SO_CRISE, nenhuma chave fica no processo
+if (SO_CRISE) delete process.env.GEMINI_API_KEY;
+else process.env['GEMINI_API_KEY'] = process.env.GEMINI_API_KEY_TESTES;
 process.env.GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite';
 const api = SO_CRISE ? null : await import('../api/mari.js');
 const [MODELO_PRINCIPAL, MODELO_RESERVA = ''] = api ? api.modelos() : [process.env.GEMINI_MODEL];
@@ -226,6 +233,14 @@ if (!SO_CRISE) {
     conversas_reprovadas: rp,
     conversas_nao_verificadas: conversas.length - ap - rp,
     taxa_aprovacao_verificacoes_automaticas: fracao(ap, ap + rp),
+    // De onde veio cada resposta, ao lado da taxa: um modelo, a reserva por palavras-chave (os dois modelos falharam)
+    // ou a crise no aparelho
+    respostas_por_origem_e_modelo: {
+      modelo_principal: ia.filter((l) => l.modelo_usado === MODELO_PRINCIPAL).length,
+      modelo_de_reserva: naReserva,
+      reserva_por_palavras_chave: linhasRespostas.filter((l) => l.origem === 'reserva').length,
+      crise_no_aparelho: linhasRespostas.filter((l) => l.origem === 'crise_local').length,
+    },
     conversas_que_chegaram_ao_modelo: conversas.filter((c) => c.chegouAoModelo).length,
     conversas_interceptadas_pela_crise_local: conversas.filter((c) => c.interceptada).length,
     respostas: linhasRespostas.length,

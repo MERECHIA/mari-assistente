@@ -5,7 +5,7 @@
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { A, MOODS, REGRAS, MENSAGEM_CRISE, EXPRESSOES_RISCO, EXPRESSOES_ATENCAO, APOIO_DO_HUMOR, orienta, ehCrise, ehAtencao, trechoAtencao, semAcento, novoRitmo, vezDeSugerir, registrarResposta } from '../src/mari-regras.js';
+import { A, MOODS, REGRAS, MENSAGEM_CRISE, RODAPE_RESERVA, rodapeDaReserva, EXPRESSOES_RISCO, EXPRESSOES_ATENCAO, APOIO_DO_HUMOR, orienta, ehCrise, ehAtencao, trechoAtencao, semAcento, novoRitmo, vezDeSugerir, registrarResposta } from '../src/mari-regras.js';
 import { TEXTO_RISCO, avisoAtencao, duracaoCopo, montarInstrucao, blocoContexto, sugestaoValida } from '../src/mari-prompt.js';
 import { CONFIG } from '../src/config.js';
 import { CATALOGO } from '../src/catalogo.js';
@@ -70,11 +70,32 @@ for (const t of ['morri de rir', 'estou cansado de esperar', 'não aguento esse 
 
 // Textos fixos da reserva: sem promessa de efeito (como o prompt da IA) e sem formas com gênero
 const PROMESSA = /\b(passa|pode ajudar|vai ajudar|ajuda muito|ajuda a|acalma|alivia|relaxa|faz passar|baixa em poucos minutos|diminu\w* a vontade|vai melhorar)\b/i;
-const textosFixos = [...REGRAS.map((r) => r.m('')), orienta('xyz').m, MENSAGEM_CRISE];
+const textosFixos = [...REGRAS.map((r) => r.m('')), orienta('xyz').m, MENSAGEM_CRISE, RODAPE_RESERVA];
 for (const t of textosFixos) {
   const p = semAcento(t).match(PROMESSA);
   check(`reserva sem promessa de efeito: "${t.slice(0, 40)}…"`, !p, p && p[0]);
   check(`reserva sem gênero: "${t.slice(0, 40)}…"`, !/\bsozinh[oa]s?\b/i.test(t));
+}
+
+// Rodapé de contatos: em toda resposta da reserva sem crise; nunca com a mensagem de crise
+check('rodapé com CVV 188, SAMU 192 e CAPS', /CVV 188/.test(RODAPE_RESERVA) && /SAMU 192/.test(RODAPE_RESERVA) && /CAPS/.test(RODAPE_RESERVA), RODAPE_RESERVA);
+for (const r of REGRAS.filter((x) => x.mood !== 'critico')) {
+  check(`rodapé na resposta da reserva "${r.mood}"`, rodapeDaReserva({ m: r.m(''), mood: r.mood }) === RODAPE_RESERVA);
+}
+for (const t of ['estou ansioso', 'quero apostar', 'perdi dinheiro', 'estou triste', 'estou cansada', 'estou em paz', 'onde acho ajuda', 'xyz']) {
+  const o = orienta(t);
+  check(`rodapé na reserva sem crise: "${t}"`, o.m !== MENSAGEM_CRISE && rodapeDaReserva(o) === RODAPE_RESERVA, o.mood);
+}
+for (const t of ['quero morrer', 'perdi tudo', 'não aguento mais', 'quero sumir']) {
+  const o = orienta(t);
+  check(`sem rodapé com a mensagem de crise: "${t}"`, o.m === MENSAGEM_CRISE && rodapeDaReserva(o) === '', o.mood);
+}
+check('sem rodapé na mensagem de crise do aparelho', rodapeDaReserva({ m: MENSAGEM_CRISE, mood: 'critico' }) === '');
+// Respostas da IA sem rodapé: em public/chat.js, o rodapé só é montado no ramo da reserva (depois de orienta)
+{
+  const chat = readFileSync(new URL('../public/chat.js', import.meta.url), 'utf8');
+  const ramoIA = chat.slice(chat.indexOf('if (ia){'), chat.indexOf('const o = orienta(txt);'));
+  check('rodapé só no ramo da reserva, nunca na resposta da IA', chat.split('rodapeDaReserva(').length === 2 && ramoIA.length > 0 && !ramoIA.includes('rodape') && chat.indexOf('rodapeDaReserva(o)') > chat.indexOf('const o = orienta(txt);'));
 }
 
 // Moods do fallback, com formas femininas

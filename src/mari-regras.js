@@ -154,4 +154,9 @@ const trechoAtencao = (txt) => {
    (registrarResposta): aparecem na vez de sugerir ou quando o humor muda */
 const APOIO_DO_HUMOR = {triste:['cvv'], vontade_apostar:['aju'], perda_financeira:['fin','aju']};
 
-export { A, EXPRESSOES_RISCO, EXPRESSOES_ATENCAO, APOIO_DO_HUMOR, MENSAGEM_CRISE, MOODS, MOODS_VALIDOS, REGRAS, orienta, ehCrise, ehAtencao, trechoAtencao, semAcento, novoRitmo, vezDeSugerir, registrarResposta };
+/* Rodapé de contatos: acompanha toda resposta da reserva por palavras-chave, menos a mensagem de crise, que já tem os
+   contatos. As respostas da IA não têm rodapé */
+const RODAPE_RESERVA = 'Se precisar de ajuda agora: CVV 188, SAMU 192 ou o CAPS da sua cidade.';
+const rodapeDaReserva = (resposta) => resposta && resposta.m !== MENSAGEM_CRISE ? RODAPE_RESERVA : '';
+
+export { A, EXPRESSOES_RISCO, EXPRESSOES_ATENCAO, APOIO_DO_HUMOR, MENSAGEM_CRISE, RODAPE_RESERVA, MOODS, MOODS_VALIDOS, REGRAS, orienta, rodapeDaReserva, ehCrise, ehAtencao, trechoAtencao, semAcento, novoRitmo, vezDeSugerir, registrarResposta };
